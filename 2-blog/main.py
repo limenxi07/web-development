@@ -1,7 +1,9 @@
 import datetime as dt
+
 import requests
 from flask import Flask, render_template, url_for
-DATA = 'https://api.npoint.io/b0b4fad21e8f3536771e'
+
+DATA = 'https://api.npoint.io/479662321b95032774cb'
 response = requests.get(DATA).json()
 
 app = Flask(__name__)
@@ -19,6 +21,9 @@ def about():
 def contact():
   return render_template('contact.html', year=year)
 
+@app.route('/post/<int:num>')
+def post(num):
+  return render_template('post.html', year=year, post=response[num-1])
+
 if __name__ == '__main__':
-  # app.run(debug=True) 
-  pass
+  app.run(debug=True) 
