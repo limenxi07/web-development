@@ -21,10 +21,17 @@ def about():
 @app.route('/contact', methods=["GET", "POST"])
 def contact():
   if request.method == 'POST':
-    name = request.form["name"]
-    email = request.form["email"]
-    phone = request.form["phone"]
-    message = request.form["message"]
+    new_data = {
+      'name': request.form["name"],
+      'email': request.form["email"],
+      'phone': request.form["phone"],
+      'message': request.form["message"]
+    }
+    with open('data.json', mode='r') as file:
+      data = json.load(file)
+      data.update(new_data)
+    with open ('data.json', mode='r') as file:
+      json.dump(data, file, indent=2)
     return render_template('contact.html', year=year, confirm=True)
   else:
     return render_template('contact.html', year=year, confirm=False)
