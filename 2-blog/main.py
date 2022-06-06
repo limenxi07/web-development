@@ -1,7 +1,8 @@
 import datetime as dt
+import json
 
 import requests
-from flask import Flask, render_template, url_for
+from flask import Flask, render_template, request
 
 DATA = 'https://api.npoint.io/479662321b95032774cb'
 response = requests.get(DATA).json()
@@ -17,9 +18,16 @@ def home():
 def about():
   return render_template('about.html', year=year)
 
-@app.route('/contact')
+@app.route('/contact', methods=["GET", "POST"])
 def contact():
-  return render_template('contact.html', year=year)
+  if request.method == 'POST':
+    name = request.form["name"]
+    email = request.form["email"]
+    phone = request.form["phone"]
+    message = request.form["message"]
+    return render_template('contact.html', year=year, confirm=True)
+  else:
+    return render_template('contact.html', year=year, confirm=False)
 
 @app.route('/post/<int:num>')
 def post(num):
