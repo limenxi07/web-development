@@ -28,7 +28,6 @@ class BlogPost(db.Model):
   author = db.Column(db.String(250), nullable=False)
   img_url = db.Column(db.String(250), nullable=False)
 db.create_all()
-posts = BlogPost.query.all()
 
 ##WTForm
 class CreatePostForm(FlaskForm):
@@ -42,12 +41,14 @@ class CreatePostForm(FlaskForm):
 
 @app.route('/')
 def get_all_posts():
+  posts = BlogPost.query.all()
   return render_template("index.html", all_posts=posts)
 
 
 @app.route("/post/<int:index>")
 def show_post(index):
   requested_post = None
+  posts = BlogPost.query.all()
   for blog_post in posts:
     if blog_post.id == index:
       requested_post = blog_post
@@ -103,6 +104,14 @@ def edit(id):
     return render_template('post.html', post=post)
   else:
     return render_template('make-post.html', form=form, heading='Edit Post')
+
+
+@app.route('/delete/<id>')
+def delete(id):
+  post = BlogPost.query.get(id)
+  db.session.delete(post)
+  db.session.commit()
+  return redirect(url_for('get_all_posts'))
 
 
 if __name__ == "__main__":
