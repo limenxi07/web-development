@@ -1,3 +1,5 @@
+import datetime as dt
+
 from flask import Flask, redirect, render_template, url_for
 from flask_bootstrap import Bootstrap
 from flask_ckeditor import CKEditor, CKEditorField
@@ -5,7 +7,6 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField
 from wtforms.validators import URL, DataRequired
-import datetime as dt
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = '8BYkEfBA6O6donzWlSihBXox7C0sKR6b'
@@ -48,7 +49,7 @@ def get_all_posts():
 def show_post(index):
   requested_post = None
   for blog_post in posts:
-    if blog_post["id"] == index:
+    if blog_post.id == index:
       requested_post = blog_post
   return render_template("post.html", post=requested_post)
 
@@ -79,7 +80,29 @@ def create():
     db.session.commit()
     return redirect(url_for('home'))
   else:
-    return render_template('make-post.html', form=form)
+    return render_template('make-post.html', form=form, heading='New Post')
+
+
+@app.route('/edit-post/<int:id>', methods=['GET', 'POST'])
+def edit(id):
+  post = BlogPost.query.get(id)
+  form = CreatePostForm(
+    title=post.title,
+    subtitle=post.subtitle,
+    img_url=post.img_url,
+    author=post.author,
+    body=post.body
+  )
+  if form.validate_on_submit():
+    post.title = form.title.data
+    post.subtitle = form.subtitle.data
+    post.img_url = form.img_url.data
+    post.author = form.author.data
+    post.body = form.body.data
+    db.session.commit()
+    return render_template('post.html', post=post)
+  else:
+    return render_template('make-post.html', form=form, heading='Edit Post')
 
 
 if __name__ == "__main__":
