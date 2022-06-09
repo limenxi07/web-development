@@ -1,10 +1,11 @@
-from flask import Flask, render_template, redirect, url_for
+from flask import Flask, redirect, render_template, url_for
 from flask_bootstrap import Bootstrap
+from flask_ckeditor import CKEditor, CKEditorField
 from flask_sqlalchemy import SQLAlchemy
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField
-from wtforms.validators import DataRequired, URL
-from flask_ckeditor import CKEditor, CKEditorField
+from wtforms.validators import URL, DataRequired
+import datetime as dt
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = '8BYkEfBA6O6donzWlSihBXox7C0sKR6b'
@@ -34,7 +35,7 @@ class CreatePostForm(FlaskForm):
   subtitle = StringField("Subtitle", validators=[DataRequired()])
   author = StringField("Your Name", validators=[DataRequired()])
   img_url = StringField("Blog Image URL", validators=[DataRequired(), URL()])
-  body = StringField("Blog Content", validators=[DataRequired()])
+  body = CKEditorField("Blog Content", validators=[DataRequired()])
   submit = SubmitField("Submit Post")
 
 
@@ -60,6 +61,25 @@ def about():
 @app.route("/contact")
 def contact():
   return render_template("contact.html")
+
+
+@app.route('/new-post', methods=['GET', 'POST'])
+def create():
+  form = CreatePostForm()
+  if form.validate_on_submit():
+    new = BlogPost(
+      title=form.title.data,
+      subtitle=form.subtitle.data,
+      date=dt.datetime.now().strftime('%B %d, %Y'), 
+      body=form.body.data,
+      author=form.author.data,
+      img_url=form.img_url.data
+    )
+    db.session.add(new)
+    db.session.commit()
+    return redirect(url_for('home'))
+  else:
+    return render_template('make-post.html', form=form)
 
 
 if __name__ == "__main__":
