@@ -1,6 +1,7 @@
 from datetime import date
+from functools import wraps
 
-from flask import Flask, flash, redirect, render_template, url_for
+from flask import Flask, abort, flash, redirect, render_template, url_for
 from flask_bootstrap import Bootstrap
 from flask_ckeditor import CKEditor
 from flask_gravatar import Gravatar
@@ -9,7 +10,7 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import relationship
 from werkzeug.security import check_password_hash, generate_password_hash
 
-from forms import CreatePostForm, RegisterForm, LoginForm
+from forms import CreatePostForm, LoginForm, RegisterForm
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = '8BYkEfBA6O6donzWlSihBXox7C0sKR6b'
@@ -31,6 +32,8 @@ class BlogPost(db.Model):
   date = db.Column(db.String(250), nullable=False)
   body = db.Column(db.Text, nullable=False)
   img_url = db.Column(db.String(250), nullable=False)
+  author_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+  author = relationship('User', back_populates='posts')
 
 
 class User(UserMixin, db.Model):
@@ -39,7 +42,17 @@ class User(UserMixin, db.Model):
   email = db.Column(db.String(100), unique=True, nullable=False)
   name = db.Column(db.String(100), nullable=False)
   password = db.Column(db.String(100), nullable=False)
+  posts = relationship('BlogPost', back_populates='author')
 db.create_all()
+
+
+def admin_only(f):
+  @wraps(f)
+  def wrapper(*args, **kwargs):
+    if current_user.id != 1:
+      return abort(403)
+    return f(*args, **kwargs)
+  return wrapper
 
 
 @login_manager.user_loader
@@ -118,7 +131,7 @@ def contact():
 
 
 @app.route("/new-post")
-@login_required
+@admin_only
 def add_new_post():
   form = CreatePostForm()
   if form.validate_on_submit():
@@ -137,7 +150,7 @@ def add_new_post():
 
 
 @app.route("/edit-post/<int:post_id>")
-@login_required
+@admin_only
 def edit_post(post_id):
   post = BlogPost.query.get(post_id)
   edit_form = CreatePostForm(
@@ -159,7 +172,7 @@ def edit_post(post_id):
 
 
 @app.route("/delete/<int:post_id>")
-@login_required
+@admin_only
 def delete_post(post_id):
   post_to_delete = BlogPost.query.get(post_id)
   db.session.delete(post_to_delete)
