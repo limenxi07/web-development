@@ -1,0 +1,1 @@
+Simple survey form for a course with basic HTML form functionality. Project idea by FreeCodeCamp.
