@@ -22,21 +22,10 @@ function convertToRoman(num) {
   while (num > 0) {
     for (var key in dict) {
       var value = dict[key];
-      if (value > 9) {
-        if (num >= value) {
-          arr.push(key);
-          num -= value;
-          break
-        }
-      } else if (value > 1) {
-        if (num == value) {
-          arr.push(key);
-          num -= value;
-          break
-        }
-      } else {
-        arr.push('I');
-        num -= 1;
+      if (num >= value) {
+        arr.push(key);
+        num -= value;
+        break
       };
     };
   };
