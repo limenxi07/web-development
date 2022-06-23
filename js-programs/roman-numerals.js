@@ -24,8 +24,9 @@ function convertToRoman(num) {
       var value = dict[key];
       if (value > 9) {
         if (num >= value) {
-        arr.push(key);
-        num -= value;
+          arr.push(key);
+          num -= value;
+          break
         }
       } else if (value > 1) {
         if (num == value) {
