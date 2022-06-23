@@ -1,1 +1,0 @@
-Simple survey form for a product with basic HTML form functionality. Project idea by FreeCodeCamp.
