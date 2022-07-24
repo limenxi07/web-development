@@ -1,0 +1,16 @@
+{
+  "name": "capstone-cafe-locator",
+  "version": "1.0.0",
+  "description": "Web app with login functionality for users to share their favourite cafes.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Lim En Xi",
+  "license": "ISC",
+  "dependencies": {
+    "ejs": "^3.1.8",
+    "express": "^4.18.1",
+    "mongoose": "^6.4.6"
+  }
+}
